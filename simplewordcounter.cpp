@@ -1,11 +1,15 @@
 #include "simplewordcounter.h"
 
 void SimpleWordCounter::reset() {
+    forcedStop = false;
     isWorking = false;
-    currentProgress = 0;
+    currentProgress = 0.;
+    totalWordsNb = 0;
     popularityToWords.clear();
     wordToPopularity.clear();
     words.clear();
+
+    emit updateProgress(currentProgress);
 }
 
 bool SimpleWordCounter::isWord(QString &str) const {
@@ -18,21 +22,20 @@ void SimpleWordCounter::promoteWord(const QString &word) {
 
     QStringView wordView = *(words.insert(word));
 
-    // if already exist
     if(wordToPopularity.count(wordView)) {
         prevPopularity = wordToPopularity[word];
         wordToPopularity[wordView] = prevPopularity + 1;
         popularityToWords[prevPopularity].removeOne(wordView);
         popularityToWords[prevPopularity + 1].push_back(wordView);
     } else {
-    // if not exist
         wordToPopularity[wordView] = 1;
         popularityToWords[1].push_back(wordView);
     }
 }
 
-QMap<QString, int> SimpleWordCounter::mostPopularWords(int nbThreshold) const {
-    QMap<QString, int> result;
+QVariantList SimpleWordCounter::mostPopularWords(int nbThreshold) const {
+
+    QMap<QString, Popularity> words;
 
     const QList<Popularity> &popularities = popularityToWords.keys();
 
@@ -41,31 +44,36 @@ QMap<QString, int> SimpleWordCounter::mostPopularWords(int nbThreshold) const {
         const Popularity curPopularity = *curPopularityIter;
 
         for(QStringView wordView: popularityToWords[curPopularity]) {
-
-            result.insert(QString(wordView.data()), curPopularity);
-
-            if(result.size() == nbThreshold) {
-                return result;
+            words.insert(QString(wordView.data()), curPopularity);
+            if(words.size() == nbThreshold) {
+                break;
             }
+        }
+
+        if(words.size() == nbThreshold) {
+            break;
         }
     }
 
-    return result;
+
+    QVariantList wordList;
+    QList<QVariant> tempList;
+
+    for(const QString &key: words.keys()) {
+        tempList.append(key);
+        tempList.append(words[key]);
+        wordList.append(QVariant(tempList));
+        tempList.clear();
+    }
+
+    return wordList;
 }
 
 SimpleWordCounter::SimpleWordCounter(QObject *parent): QObject(parent) {
     internalBuffer.resize(ChunkSize);
 }
 
-int SimpleWordCounter::getCurrentProgress() const {
-    return currentProgress;
-}
-
-bool SimpleWordCounter::isBusy() const {
-    return isWorking;
-}
-
-void SimpleWordCounter::startProcessFile(QString fileName) {
+void SimpleWordCounter::start(QString fileName) {
 
     if(isWorking) {
         return;
@@ -86,8 +94,6 @@ void SimpleWordCounter::startProcessFile(QString fileName) {
     quint64 fileSize = inputFile.size();
     int chunksNb = fileSize / ChunkSize + 1;
 
-    emit updateProgress(0.);
-
     for(int chunkIdx = 0; chunkIdx < chunksNb; chunkIdx++) {
         if(!inputFile.isReadable()) {
             emit fileError(QString("File [%1] is not readable.").arg(fileName));
@@ -100,14 +106,36 @@ void SimpleWordCounter::startProcessFile(QString fileName) {
 
         int chunkProgress = 0;
         for(QString &word: rawWords) {
+
+            if(forcedStop) {
+                reset();
+                emit finished();
+                return;
+            }
+
             if(isWord(word)) {
                 promoteWord(word);
             }
             chunkProgress++;
-            emit updateProgress((chunkIdx + float(chunkProgress) / rawWords.size()) / chunksNb);
+            totalWordsNb++;
+
+            currentProgress = (chunkIdx + float(chunkProgress) / rawWords.size()) / float(chunksNb);
+
+            if(fabs(currentProgress - prevProgressUpdateVal) >= ProgressUpdateThreshold) {
+                prevProgressUpdateVal = currentProgress;
+                emit updateProgress(currentProgress);
+                emit updateStatistics(totalWordsNb);
+            }
+
+            if(fabs(currentProgress - prevWordsUpdateVal) >= WordsUpdateThreshold) {
+                prevWordsUpdateVal = currentProgress;
+                emit updateWords(mostPopularWords(PopularWordsNb));
+            }
         }
     }
-    inputFile.close();
 
+    inputFile.close();
     isWorking = false;
+
+    emit finished();
 }

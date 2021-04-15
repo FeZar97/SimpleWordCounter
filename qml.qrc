@@ -1,5 +1,9 @@
 <RCC>
     <qresource prefix="/">
         <file>main.qml</file>
+        <file>ControlPanel.qml</file>
+        <file>ProgressBarPanel.qml</file>
+        <file>ChartArea.qml</file>
+        <file>StatisticPanel.qml</file>
     </qresource>
 </RCC>
