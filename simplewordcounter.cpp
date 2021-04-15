@@ -74,14 +74,15 @@ void SimpleWordCounter::startProcessFile(QString fileName) {
 
     QFile inputFile(fileName);
     if(!inputFile.exists()) {
-        emit fileError(NOT_EXIST, fileName);
+        emit fileError(QString("File [%1] not exist.").arg(fileName));
         return;
     }
     if(!inputFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        emit fileError(NOT_AVAILABLE, fileName);
+        emit fileError(QString("File [%1] can't opened.").arg(fileName));
         return;
     }
 
+    isWorking = true;
     quint64 fileSize = inputFile.size();
     int chunksNb = fileSize / ChunkSize + 1;
 
@@ -89,7 +90,8 @@ void SimpleWordCounter::startProcessFile(QString fileName) {
 
     for(int chunkIdx = 0; chunkIdx < chunksNb; chunkIdx++) {
         if(!inputFile.isReadable()) {
-            emit fileError(READ_ERROR, fileName);
+            emit fileError(QString("File [%1] is not readable.").arg(fileName));
+            isWorking = false;
             return;
         }
 
@@ -107,5 +109,5 @@ void SimpleWordCounter::startProcessFile(QString fileName) {
     }
     inputFile.close();
 
-    emit updateProgress(1.);
+    isWorking = false;
 }

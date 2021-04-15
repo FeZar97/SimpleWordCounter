@@ -15,12 +15,21 @@ int main(int argc, char *argv[])
     workerThread->start();
 
     QObject::connect(wordCounter, &SimpleWordCounter::updateProgress, [=](float curProgress) {
-        qDebug() << "Progress: " << curProgress;
+        qDebug() << QString("Progress: %1").arg(curProgress);
+        qDebug() << "Current statistic: " << wordCounter->mostPopularWords(15);
     });
 
-    wordCounter->startProcessFile("C:/Users/fnazarov/Desktop/test text.txt");
+    QObject::connect(wordCounter, &SimpleWordCounter::fileError, [=](QString description) {
+        qDebug() << QString("Error occured: (%1)").arg(description);
+    });
 
-    qDebug() << wordCounter->mostPopularWords(15);
+    QObject::connect(wordCounter, &SimpleWordCounter::processFinished, [=]() {
+        qDebug() << QString("Finished!");
+    });
+
+    wordCounter->startProcessFile("../SimpleWordCounter/testText.txt");
+
+    qDebug() << "Result: " << wordCounter->mostPopularWords(15);
 
     QQmlApplicationEngine engine;
     const QUrl url(QStringLiteral("qrc:/main.qml"));

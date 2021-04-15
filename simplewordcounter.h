@@ -46,7 +46,7 @@ public:
 
 signals:
     void updateProgress(float curProgress = 0.);
-    void fileError(FileOpenErrors errorType, QString fileName);
+    void fileError(QString description);
     void processFinished();
 };
 
