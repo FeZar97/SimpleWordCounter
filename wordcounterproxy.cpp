@@ -8,29 +8,29 @@ WordCounterProxy::WordCounterProxy(QObject *parent,
     connect(this, &WordCounterProxy::startProcessFileBG,
             wordCounterPtr, &SimpleWordCounter::start);
 
-    // progress
+    // work progress
     connect(wordCounterPtr, &SimpleWordCounter::updateProgress,
-            this, &WordCounterProxy::setProgressUI);
+            this, &WordCounterProxy::setProgressUI, Qt::QueuedConnection);
 
-    // words
+    // info about most common words
     connect(wordCounterPtr, &SimpleWordCounter::updateWords,
-            this, &WordCounterProxy::updateDataUI);
+            this, &WordCounterProxy::updateDataUI, Qt::QueuedConnection);
 
-    // statistics
+    // work statistics
     connect(wordCounterPtr, &SimpleWordCounter::updateStatistics, [=](quint64 totalWordsNb) {
             emit updateStatistics(totalWordsNb, startDateTime.secsTo(QDateTime::currentDateTime()));
     });
 
-    // finished
-    connect(wordCounterPtr, &SimpleWordCounter::finished,
-            this, &WordCounterProxy::finished);
+    connect(wordCounterPtr, &SimpleWordCounter::finished, this, &WordCounterProxy::finished);
 }
 
+// start worker
 void WordCounterProxy::startProcessFileUI(QString fileName) {
     startDateTime = QDateTime::currentDateTime();
     emit startProcessFileBG(fileName.remove("file:///"));
 }
 
+// forced stopping worker
 void WordCounterProxy::stopProcessFileUI() {
     if(wordCounterPtr) {
         wordCounterPtr->forcedStop = true;

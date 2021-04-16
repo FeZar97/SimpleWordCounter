@@ -7,39 +7,35 @@
 #include <QFile>
 #include <QSet>
 #include <QVariantList>
+#include <QDateTime>
 
 using Popularity = quint64;
 
-enum FileOpenErrors {
-    NOT_EXIST,
-    NOT_AVAILABLE,
-    READ_ERROR
-};
-
-const int PopularWordsNb{10};
-
-const double ProgressUpdateThreshold{0.0001};
-const double WordsUpdateThreshold{0.01};
-const quint64 ChunkSize{1 << 20}; // 1 MB
+const int PopularWordsNb{15};
+const qint64 ChunkSize{1 << 20}; // 1 MB
+const qint64 UiUpdatePeridMsecs{500};
 
 class SimpleWordCounter: public QObject {
     Q_OBJECT
 
     bool isWorking{false};
-    float currentProgress{0}, prevProgressUpdateVal{0}, prevWordsUpdateVal{0};
+    float currentProgress{0};
     QByteArray internalBuffer;
     quint64 totalWordsNb{0};
+    QDateTime prevUiUpdateTime;
 
     QMap<Popularity, QList<QStringView>> popularityToWords;
     QMap<QStringView, Popularity> wordToPopularity;
     QSet<QString> words;
 
     void reset();
-
+    bool tryOpenFile(QFile &file);
+    bool checkFileAvailable(QFile &file);
+    qint64 readCorrectnessChunk(QFile &curFile);
     bool isWord(QString &str) const;
     void promoteWord(const QString &word);
-
     QVariantList mostPopularWords(int nbThreshold) const;
+    void updateUi();
 
 public:
     SimpleWordCounter(QObject *parent = nullptr);
