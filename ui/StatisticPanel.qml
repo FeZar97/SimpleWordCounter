@@ -12,11 +12,7 @@ RowLayout {
 
         totalWordsLabel.text = qsTr("Total words: ") + String(totalWordsNb).replace(/(\d)(?=(\d{3})+([^\d]|$))/g, "$1 ")
 
-        // var h = processingTimeSec/3600^0
-        // var m = (processingTimeSec-h*3600)/60^0
-        // var s = processingTimeSec-h*3600-m*60
-        // var timeString = (h<10?"0"+h:h)+" h. "+(m<10?"0"+m:m)+" min. "+(s<10?"0"+s:s)+" sec."
-        var timeString = processingTimeSec + "s."
+        var timeString = processingTimeSec + " sec."
         processingTimeLabel.text = qsTr("Processing time: ") + timeString
     }
 

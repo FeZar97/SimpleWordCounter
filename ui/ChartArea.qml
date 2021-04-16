@@ -20,7 +20,7 @@ RowLayout {
         titleFont.pointSize: 15
         titleFont.bold: true
 
-        theme: ChartView.ChartThemeQt
+        theme: ChartView.ChartThemeDark
         antialiasing: true
 
         ValueAxis {
@@ -40,35 +40,38 @@ RowLayout {
             id: barSeries
             axisX: barCategoriesAxis
             axisY: valueAxisY
+            labelsVisible: true
+            labelsPosition: AbstractBarSeries.LabelsOutsideEnd
 
             BarSet {
                 id: wordsSet
                 label: "Words"
+                labelFont: {
+                    color: "black";
+                }
             }
         }
     }
 
     function updateWordsStatistic(variantList) {
 
-        wordsSet.values = []
+        wordsSet.values = [];
 
-        chartView.title = variantList.length + " most popular words"
-        var xLabels = barCategoriesAxis.categories
+        chartView.title = variantList.length + " most popular words";
+        var xLabels = barCategoriesAxis.categories;
 
-        // find max
         var max = 0;
         for (var i = 0; i < variantList.length; i++) {
             if(variantList[i][1] > max) {
-                max = variantList[i][1]
+                max = variantList[i][1];
             }
         }
 
-        valueAxisY.max = (Math.floor(max * 1.1 / 10) + 1) * 10
+        valueAxisY.max = (Math.floor(max * 1.1 / 10) + 1) * 10;
 
         for (var wordIdx = 0; wordIdx < variantList.length; wordIdx++) {
-            wordsSet.append(variantList[wordIdx][1])
-            xLabels[Number(wordIdx)] = variantList[wordIdx][0]
-                    + "\n(" + variantList[wordIdx][1] + ")"
+            wordsSet.append(variantList[wordIdx][1]);
+            xLabels[Number(wordIdx)] = variantList[wordIdx][0];
         }
 
         barCategoriesAxis.categories = xLabels;

@@ -5,6 +5,6 @@
         <file>ProgressBarPanel.qml</file>
         <file>ChartArea.qml</file>
         <file>StatisticPanel.qml</file>
-        <file>icon.ico</file>
+        <file>../res/icon.ico</file>
     </qresource>
 </RCC>
