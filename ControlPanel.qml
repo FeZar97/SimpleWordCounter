@@ -6,6 +6,7 @@ import QtQuick.Dialogs 1.3
 RowLayout {
     id: rowLayout
     Layout.margins: 5
+    Layout.fillWidth: true
     spacing: 5
 
     property string selectedFileName: ""
@@ -54,5 +55,9 @@ RowLayout {
             wordCounterProxy.stopProcessFileUI()
             setStartEnabled(true)
         }
+    }
+
+    Component.onCompleted: {
+        setStartEnabled(true)
     }
 }

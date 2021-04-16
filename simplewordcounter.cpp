@@ -91,7 +91,9 @@ void SimpleWordCounter::start(QString fileName) {
     }
 
     isWorking = true;
-    quint64 fileSize = inputFile.size();
+    quint64 fileSize = inputFile.size(),
+            lastReadedSize = 0,
+            curReadPos = 0;
     int chunksNb = fileSize / ChunkSize + 1;
 
     for(int chunkIdx = 0; chunkIdx < chunksNb; chunkIdx++) {
@@ -101,8 +103,25 @@ void SimpleWordCounter::start(QString fileName) {
             return;
         }
 
-        quint64 readed = inputFile.read(internalBuffer.data(), ChunkSize);
-        QStringList rawWords = QString(internalBuffer.left(readed)).simplified().split(" ", Qt::SkipEmptyParts);
+        // find end of full-last word
+        quint64 prevPos = inputFile.pos();
+        quint64 maxToRead = qMin(fileSize - prevPos, ChunkSize);
+        lastReadedSize = inputFile.read(internalBuffer.data(), maxToRead);
+
+        if(lastReadedSize) {
+            quint64 lastSpacePos = 0;
+            for(int pos = lastReadedSize - 1; pos >=0; pos--) {
+                if(internalBuffer.data()[pos] == ' ') {
+                    lastSpacePos = pos;
+                    break;
+                }
+            }
+
+            lastReadedSize = lastSpacePos;
+            inputFile.seek(prevPos + lastReadedSize);
+        }
+
+        QStringList rawWords = QString(internalBuffer.left(lastReadedSize)).simplified().split(" ", Qt::SkipEmptyParts);
 
         int chunkProgress = 0;
         for(QString &word: rawWords) {
@@ -133,6 +152,10 @@ void SimpleWordCounter::start(QString fileName) {
             }
         }
     }
+
+    emit updateProgress(currentProgress);
+    emit updateStatistics(totalWordsNb);
+    emit updateWords(mostPopularWords(PopularWordsNb));
 
     inputFile.close();
     isWorking = false;

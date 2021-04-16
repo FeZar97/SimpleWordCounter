@@ -20,6 +20,7 @@ const int PopularWordsNb{10};
 
 const double ProgressUpdateThreshold{0.0001};
 const double WordsUpdateThreshold{0.01};
+const quint64 ChunkSize{1 << 20}; // 1 MB
 
 class SimpleWordCounter: public QObject {
     Q_OBJECT
@@ -29,7 +30,6 @@ class SimpleWordCounter: public QObject {
     QByteArray internalBuffer;
     quint64 totalWordsNb{0};
 
-    const quint64 ChunkSize{1 << 20}; // 1 MB
     QMap<Popularity, QList<QStringView>> popularityToWords;
     QMap<QStringView, Popularity> wordToPopularity;
     QSet<QString> words;

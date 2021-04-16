@@ -20,7 +20,6 @@ Window {
         function onUpdateStatistics(totalWordsNb, processingTimeSec) {
             statisticPanel.updateStatistics(totalWordsNb, processingTimeSec)
         }
-
         function onFinished() {
             controlPanel.setStartEnabled(true)
         }
@@ -45,11 +44,5 @@ Window {
         ProgressBarPanel {
             id: progressBarPanel
         }
-    }
-
-    Component.onCompleted: {
-        progressBarPanel.setProgress(0)
-        controlPanel.setStartEnabled(true)
-        statisticPanel.updateStatistics(0, 0)
     }
 }

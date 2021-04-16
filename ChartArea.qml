@@ -6,8 +6,10 @@ RowLayout {
     id: rowLayout
     Layout.margins: 5
     spacing: 5
+    Layout.fillWidth: true
     Layout.fillHeight: true
 
+    /*
     function updateWordsStatistic(variantList) {
         pieSeries.clear()
 
@@ -24,6 +26,35 @@ RowLayout {
             pieSeries.at(j).labelVisible = true
         }
     }
+    */
+    function updateWordsStatistic(variantList) {
+        barSeries.clear()
+
+        chartView.title = variantList.length + " most popular words"
+
+        // find max value
+        var maxBarVal = 0;
+        for (var i = 0; i < variantList.length; i++) {
+            if(variantList[i][1] > maxBarVal) {
+                maxBarVal = variantList[i][1]
+            }
+        }
+
+        // set y axis
+
+
+        for (var i = 0; i < variantList.length; i++) {
+
+            if(variantList[i].length === 2) {
+                barSeries.axisX
+                barSeries.append(variantList[i][0] + " (" + variantList[i][1] + ")",
+                                 variantList[i][1])
+            }
+        }
+        for (var j = 0; j < pieSeries.count; j++) {
+            barSeries.at(j).labelVisible = true
+        }
+    }
 
     ChartView {
         id: chartView
@@ -38,8 +69,12 @@ RowLayout {
 
         antialiasing: true
 
-        PieSeries {
-            id: pieSeries
+        // PieSeries {
+        //     id: pieSeries
+        // }
+
+        BarSeries {
+            id: barSeries
         }
     }
 }

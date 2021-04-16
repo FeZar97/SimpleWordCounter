@@ -5,6 +5,7 @@ import QtQuick.Layouts 1.12
 RowLayout {
     id: rowLayout
     Layout.margins: 5
+    Layout.fillWidth: true
     spacing: 5
 
     function setProgress(curProgress) {
@@ -26,8 +27,8 @@ RowLayout {
         Layout.fillWidth: true
 
         background: Rectangle {
-            implicitWidth: 200
             implicitHeight: 6
+            implicitWidth: progressBar.width
             color: "#e6e6e6"
             radius: 3
         }
@@ -36,7 +37,7 @@ RowLayout {
             implicitHeight: 12
 
             Rectangle {
-                width: progressBar.visualPosition * parent.width
+                width: progressBar.visualPosition * progressBar.width
                 height: parent.height
                 radius: 2
                 color: "#17a81a"
@@ -48,5 +49,9 @@ RowLayout {
         id: progressValueLabel
         font.family: "Courier new"
         font.pointSize: 13
+    }
+
+    Component.onCompleted: {
+        setProgress(0)
     }
 }
