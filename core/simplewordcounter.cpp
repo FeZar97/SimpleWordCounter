@@ -11,7 +11,7 @@ void SimpleWordCounter::reset() {
     words.clear();
     prevUiUpdateTime = QDateTime::currentDateTime();
 
-    emit updateProgress(currentProgress);
+    updateUi();
 }
 
 // check file existing and try open it
@@ -158,7 +158,9 @@ void SimpleWordCounter::start(QString fileName) {
         lastReadedSize = readCorrectnessChunk(inputFile);
         QStringList rawWords = QString(internalBuffer.left(lastReadedSize)).simplified().split(" ", Qt::SkipEmptyParts);
 
-        int chunkProgress = 0;
+        int wordsCnt = 0;
+        float curChunkProgress = 0.;
+
         for(QString &word: rawWords) {
 
             if(forcedStop) {
@@ -170,12 +172,13 @@ void SimpleWordCounter::start(QString fileName) {
             if(isWord(word)) {
                 promoteWord(word);
             }
-            chunkProgress++;
+            wordsCnt++;
             totalWordsNb++;
 
-            currentProgress = (chunkIdx + (float(chunkProgress) / rawWords.size())) / chunksNb;
+            curChunkProgress = float(wordsCnt) / rawWords.size();
+            currentProgress = (chunkIdx + curChunkProgress) / chunksNb;
 
-            if(prevUiUpdateTime.msecsTo(QDateTime::currentDateTime()) > UiUpdatePeridMsecs) {
+            if(prevUiUpdateTime.msecsTo(QDateTime::currentDateTime()) > UiUpdatePeriodMsecs) {
                 prevUiUpdateTime = QDateTime::currentDateTime();
                 updateUi();
             }

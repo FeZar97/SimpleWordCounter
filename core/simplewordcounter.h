@@ -13,7 +13,7 @@ using Popularity = quint64;
 
 const int PopularWordsNb{15};
 const qint64 ChunkSize{1 << 20}; // 1 MB
-const qint64 UiUpdatePeridMsecs{350};
+const qint64 UiUpdatePeriodMsecs{350};
 
 class SimpleWordCounter: public QObject {
     Q_OBJECT
