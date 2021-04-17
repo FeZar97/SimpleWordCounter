@@ -111,7 +111,7 @@ qint64 SimpleWordCounter::readCorrectnessChunk(QFile &inputFile) {
     qint64 maxToRead = qMin(inputFile.size() - prevPos, ChunkSize);
     qint64 lastReadedSize = inputFile.read(internalBuffer.data(), maxToRead);
 
-    if(lastReadedSize) {
+    if(lastReadedSize && (prevPos + lastReadedSize != inputFile.size())) {
         qint64 lastSpacePos = 0;
         for(qint64 pos = lastReadedSize - 1; pos >= 0; pos--) {
             if(internalBuffer.data()[pos] == ' ') {
