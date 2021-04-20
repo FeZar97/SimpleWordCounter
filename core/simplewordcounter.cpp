@@ -129,6 +129,13 @@ qint64 SimpleWordCounter::readCorrectnessChunk(QFile &inputFile) {
 
 SimpleWordCounter::SimpleWordCounter(QObject *parent): QObject(parent) {
     internalBuffer.resize(ChunkSize);
+
+    decoder = new QTextDecoder(QTextCodec::codecForName("Windows-1251"));
+}
+
+SimpleWordCounter::~SimpleWordCounter() {
+    internalBuffer.clear();
+    delete decoder;
 }
 
 void SimpleWordCounter::start(QString fileName) {
@@ -156,7 +163,7 @@ void SimpleWordCounter::start(QString fileName) {
 
         // find correctness end of last word in chunk
         lastReadedSize = readCorrectnessChunk(inputFile);
-        QStringList rawWords = QString(internalBuffer.left(lastReadedSize)).simplified().split(" ", Qt::SkipEmptyParts);
+        QStringList rawWords = decoder->toUnicode(internalBuffer.left(lastReadedSize)).simplified().split(" ", Qt::SkipEmptyParts);
 
         int wordsCnt = 0;
         float curChunkProgress = 0.;

@@ -4,8 +4,8 @@
 #include <QQmlContext>
 #include <QThread>
 
-#include "simplewordcounter.h"
-#include "wordcounterproxy.h"
+#include "core/simplewordcounter.h"
+#include "core/wordcounterproxy.h"
 
 int main(int argc, char *argv[]) {
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);

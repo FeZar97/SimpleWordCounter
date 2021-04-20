@@ -8,6 +8,7 @@
 #include <QSet>
 #include <QVariantList>
 #include <QDateTime>
+#include <QTextCodec>
 
 using Popularity = quint64;
 
@@ -17,6 +18,8 @@ const qint64 UiUpdatePeriodMsecs{350};
 
 class SimpleWordCounter: public QObject {
     Q_OBJECT
+
+    QTextDecoder *decoder;
 
     bool isWorking{false};
     float currentProgress{0};
@@ -39,6 +42,8 @@ class SimpleWordCounter: public QObject {
 
 public:
     SimpleWordCounter(QObject *parent = nullptr);
+    ~SimpleWordCounter();
+
     bool forcedStop{false};
     void start(QString fileName);
 

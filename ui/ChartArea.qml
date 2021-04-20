@@ -56,10 +56,10 @@ RowLayout {
     function updateWordsStatistic(variantList) {
 
         wordsSet.values = [];
+        barCategoriesAxis.categories = [];
+        var xLabels = [];
 
         chartView.title = variantList.length + " most popular words";
-        var xLabels = barCategoriesAxis.categories;
-
         var max = 0;
         for (var i = 0; i < variantList.length; i++) {
             if(variantList[i][1] > max) {
